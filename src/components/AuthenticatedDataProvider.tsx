@@ -25,7 +25,7 @@ export const AuthenticatedDataProvider: React.FC<AuthenticatedDataProviderProps>
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const [token, setToken] = useState<string>("");
   const [fields, setFields] = useState<FarmFieldGeoJSONCollection | undefined>(undefined);
-  const [employees, setEmployees] = useState<FarmEmployee[] | undefined>(undefined);
+  const [employees, setEmployees] = useState<FarmEmployee[] | undefined>([]);
   const [alerts, setAlerts] = useState<FieldAlert[] | undefined>(undefined);
 
   const fetchData = useCallback(async (): Promise<void> => {
@@ -54,8 +54,10 @@ export const AuthenticatedDataProvider: React.FC<AuthenticatedDataProviderProps>
     }
     setAlerts(alerts);
 
+    /*
     const employees = await apiService.getEmployees(accessToken);
     setEmployees(employees);
+    */
   }, [getAccessTokenSilently]);
 
   useEffect(() => {

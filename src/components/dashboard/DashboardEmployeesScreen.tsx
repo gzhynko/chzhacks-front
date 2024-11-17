@@ -14,7 +14,7 @@ interface DashboardEmployeesScreenProps {
 }
 
 export const DashboardEmployeesScreen: React.FC<DashboardEmployeesScreenProps> = ({active}) => {
-  const { token, employees } = useAuthenticatedData();
+  let { token, employees } = useAuthenticatedData();
   const [newEmployee, setNewEmployee] = useState<FarmEmployee>({employeeName: "", employeeEmail: "", employeePhone: "", employeeRole: ""});
 
   const onAddEmployee = async () => {
