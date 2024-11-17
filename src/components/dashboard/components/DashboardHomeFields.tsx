@@ -17,10 +17,12 @@ import { DashboardHomeFieldItem } from "@/components/dashboard/components/Dashbo
 
 interface DashboardHomeFieldsProps {
   onAlertClick: (fieldId: string) => void;
+  alertsFilterFieldId: string | null;
+  setAlertsFilterFieldId: (fieldId: string | null) => void;
 }
 
-export const DashboardHomeFields: React.FC<DashboardHomeFieldsProps> = ({onAlertClick}) => {
-  const { token, fields } = useAuthenticatedData();
+export const DashboardHomeFields: React.FC<DashboardHomeFieldsProps> = ({onAlertClick, alertsFilterFieldId, setAlertsFilterFieldId}) => {
+  const { fields } = useAuthenticatedData();
 
   return (
     <Card className="flex flex-col h-full w-full rounded-2xl">
@@ -33,7 +35,7 @@ export const DashboardHomeFields: React.FC<DashboardHomeFieldsProps> = ({onAlert
             <Button variant="ghost" className="text-gray-500 h-16 w-full"><Plus/> Add a new field</Button>
           </NavLink>
         )}
-        {fields && fields.features.map((field) => (<DashboardHomeFieldItem field={field} onAlertClick={onAlertClick} />))}
+        {fields && fields.features.map((field) => (<DashboardHomeFieldItem field={field} onAlertClick={onAlertClick} alertsFilterFieldId={alertsFilterFieldId} setAlertsFilterFieldId={setAlertsFilterFieldId} />))}
       </CardContent>
     </Card>
   );

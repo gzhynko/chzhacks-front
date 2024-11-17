@@ -15,14 +15,18 @@ import { useState } from "react";
 interface DashboardHomeFieldItemProps {
   field: Feature<Polygon, FarmFieldProperties>;
   onAlertClick: (fieldId: string) => void;
+  alertsFilterFieldId: string | null;
+  setAlertsFilterFieldId: (fieldId: string | null) => void;
 }
 
-export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ field, onAlertClick }) => {
+export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ field, onAlertClick, alertsFilterFieldId, setAlertsFilterFieldId }) => {
   const [addingTodoItem, setAddingTodoItem] = useState(false);
   const [newItem, setNewItem] = useState<TodoListItem | null>({text: "", assignedEmployee: null});
   const [open, setOpen] = useState(false);
 
-  const { token, fields } = useAuthenticatedData();
+  const { token, alerts, fields } = useAuthenticatedData();
+
+  const alertsForThisField = alerts?.filter((alert) => alert.fieldId === field.properties.fieldId);
 
   const updateField = async (fieldId: string, field: Feature<Polygon, FarmFieldProperties>) => {
     await apiService.updateField(token, {
@@ -77,7 +81,9 @@ export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ 
                 </div>
               </div>
             </div>
-            <Badge variant="destructive">1 alert(s)</Badge>
+            {(alertsForThisField && alertsForThisField.length !== 0) && 
+              <Badge variant="destructive" onClick={(e) => {setAlertsFilterFieldId(field.properties.fieldId); e.stopPropagation();}}>{alertsForThisField.length} alert(s)</Badge>
+            }
           </div>
         </Alert>
       </PopoverTrigger>
@@ -89,7 +95,7 @@ export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ 
               <ChevronRight size={14} />
               <p className="text-base">To-do List</p>
             </div>
-            <Button variant="ghost" className="p-1 h-fit" onClick={() => {}}><X/></Button>
+            <Button variant="ghost" className="p-1 h-fit" onClick={() => {setAddingTodoItem(false); setOpen(false)}}><X/></Button>
           </div>
           <div className="flex flex-col gap-2 overflow-auto h-full">
             {!addingTodoItem ? (

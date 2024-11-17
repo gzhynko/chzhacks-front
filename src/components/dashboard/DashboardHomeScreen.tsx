@@ -2,7 +2,7 @@ import { MapView } from "@/components/MapView";
 import { DashboardBlock } from "./components/DashboardBlock";
 import { DashboardScreenProps } from "@/routes/Dashboard";
 import * as turf from '@turf/turf';
-import { MutableRefObject, useEffect, useRef } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { DashboardHomeAlerts } from "./components/DashboardHomeAlerts";
 import { DashboardHomeFields } from "./components/DashboardHomeFields";
 import { useAuthenticatedData } from "../AuthenticatedDataContext";
@@ -11,6 +11,7 @@ import { GeoJSONSource, MapRef } from "react-map-gl";
 export const DashboardHomeScreen: React.FC<DashboardScreenProps> = ({active}) => {
   const { fields } = useAuthenticatedData();
   const mapRef: MutableRefObject<MapRef|null> = useRef(null);
+  const [alertsFilterFieldId, setAlertsFilterFieldId] = useState<string | null>("");
 
   useEffect(() => {
     if (active)
@@ -44,10 +45,10 @@ export const DashboardHomeScreen: React.FC<DashboardScreenProps> = ({active}) =>
     <div className={`flex flex-col gap-3 ${active ? "" : "hidden "}h-full`}>
       <div className="h-1/2 flex flex-row gap-3 justify-between items-center">
         <DashboardBlock>
-          <DashboardHomeAlerts />
+          <DashboardHomeAlerts alertsFilterFieldId={alertsFilterFieldId} setAlertsFilterFieldId={setAlertsFilterFieldId} />
         </DashboardBlock>
         <DashboardBlock>
-          <DashboardHomeFields onAlertClick={onAlertClick} />
+          <DashboardHomeFields onAlertClick={onAlertClick} alertsFilterFieldId={alertsFilterFieldId} setAlertsFilterFieldId={setAlertsFilterFieldId} />
         </DashboardBlock>
       </div>
       <div className="w-full h-1/2">

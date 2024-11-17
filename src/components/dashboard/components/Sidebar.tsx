@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/shadcn-ui/dropdown-menu"
-import { ChevronUp, Home, LogOut, Sprout, Tractor } from "lucide-react";
+import { ChevronUp, Home, LogOut, Sprout, Tractor, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn-ui/avatar";
 import { useAuthenticatedData } from "@/components/AuthenticatedDataContext";
 
@@ -28,6 +28,9 @@ export const Sidebar: React.FC = () => {
         <NavLink to="manage" className={({ isActive }) => `${buttonVariants({ variant: isActive ? "secondary" : "ghost" })} w-full h-11 !justify-start`}>
           <Tractor/> Manage Farmland
         </NavLink>
+        <NavLink to="employees" className={({ isActive }) => `${buttonVariants({ variant: isActive ? "secondary" : "ghost" })} w-full h-11 !justify-start`}>
+          <UserRound/> Manage Employees
+      </NavLink>
       </div>
       <div className="border-t px-4 py-2">
         <DropdownMenu>

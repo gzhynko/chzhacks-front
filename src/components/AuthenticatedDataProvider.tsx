@@ -4,7 +4,7 @@ import { useAuth0, User } from "@auth0/auth0-react";
 import { useCallback, useEffect, useState } from "react";
 import { AuthenticatedDataContext } from "./AuthenticatedDataContext";
 import { FarmEmployee } from "@/model/FarmEmployee";
-import { FieldAlert, FieldAlertDTO } from "@/model/FieldAlert";
+import { FieldAlert } from "@/model/FieldAlert";
 
 export interface AuthenticatedContextState {
   token: string;
