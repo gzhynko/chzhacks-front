@@ -34,9 +34,9 @@ export const Sidebar: React.FC = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex flex-row justify-between h-11 w-full">
               <div className="h-full flex flex-row items-center gap-2">
-                <Avatar className="h-full w-auto">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="." />
+                  <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
                 <span>John Doe</span>
               </div>

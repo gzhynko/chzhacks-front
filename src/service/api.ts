@@ -2,7 +2,7 @@ import { FarmFieldDTO, FarmFieldGeoJSONCollection, FarmFieldProperties } from "@
 import axios from "axios";
 import { Feature, Polygon } from "geojson";
 
-const API_BASE_URL = "http://localhost:5000/farm";
+const API_BASE_URL = "http://10.140.151.112:5500/farm";
 
 export const apiService = {
   async getFields(token: string) {
@@ -15,12 +15,15 @@ export const apiService = {
     }
   },
   async addField(token: string, field: FarmFieldDTO) {
-    return axios.post<FarmFieldDTO>(`${API_BASE_URL}`, field, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+    return axios.post<FarmFieldDTO>(`${API_BASE_URL}/add-farm`, field, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
   async updateField(token: string, field: FarmFieldDTO) {
     return axios.put<FarmFieldDTO>(`${API_BASE_URL}/update-farm`, field, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
   async deleteField(token: string, fieldId: string) {
     return axios.delete(`${API_BASE_URL}/delete-farm/${fieldId}`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+  },
+  async getAlerts(token: string) {
+    return axios.get(`${API_BASE_URL}/get-alerts`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
 }

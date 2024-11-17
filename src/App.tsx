@@ -1,5 +1,6 @@
 import { Auth0ProviderWithNavigate } from "@/components/Auth0ProviderWithNavigate";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
+import { Toaster } from "@/components/shadcn-ui/toaster";
 import { Dashboard } from "@/routes/Dashboard";
 import Home from "@/routes/Home";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
@@ -30,6 +31,9 @@ const router = createBrowserRouter([
 
 export const App: React.FC = () => {
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <Toaster />
+    </>
   );
 };

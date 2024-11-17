@@ -13,6 +13,7 @@ import { apiService } from "@/service/api";
 import { Feature, Polygon } from "geojson";
 import { GeoJSONSource } from "mapbox-gl";
 import { MapRef, MapMouseEvent } from "react-map-gl";
+import { toast } from "@/components/shadcn-ui/hooks/use-toast";
 
 const drawControl = new MapboxDraw({
   displayControlsDefault: false,
@@ -149,13 +150,18 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
       return properties.fieldName && properties.cropType && properties.cropPlanted && properties.cropHarvest;
     });
     if (!valid) {
-      console.error("Invalid polygon data: ", data);
+      toast({
+        title: "Invalid field data",
+        description: "Please make sure all fields are filled out",
+        variant: "destructive",
+      })
       return;
     }
 
     // convert to list of individual features
     const features = data.features.map((feature) => {
       const properties = feature.properties as FarmFieldProperties;
+      properties.areaAcre = turf.round(turf.area(feature) / 4047, 1);
       return {
         type: 'Feature',
         geometry: feature.geometry,
