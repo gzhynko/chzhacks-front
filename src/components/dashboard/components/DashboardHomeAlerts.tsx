@@ -32,7 +32,7 @@ export const DashboardHomeAlerts: React.FC = () => {
             </AlertDescription>
           </Alert>
         ))}
-        {alerts.length === 0 && (
+        {alerts?.length === 0 && (
           <p className="text-gray-500">No alerts right now.</p>
         )}
       </CardContent>
