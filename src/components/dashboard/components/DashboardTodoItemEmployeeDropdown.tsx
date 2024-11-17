@@ -1,10 +1,11 @@
 import { useAuthenticatedData } from "@/components/AuthenticatedDataContext";
 import { Button } from "@/components/shadcn-ui/button";
+import { Command } from "@/components/shadcn-ui/command";
 import { cn } from "@/components/shadcn-ui/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn-ui/popover";
 import { FarmEmployee } from "@/model/FarmEmployee";
-import { CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "cmdk";
-import { ChevronsUpDown, Command, Check } from "lucide-react";
+import { CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/shadcn-ui/command";
+import { ChevronsUpDown, Check } from "lucide-react";
 import { useState } from "react";
 
 interface DashboardTodoItemEmployeeDropdownProps {
@@ -37,7 +38,7 @@ export const DashboardTodoItemEmployeeDropdown: React.FC<DashboardTodoItemEmploy
         <Command>
           <CommandInput placeholder="Search employees..." />
           <CommandList>
-            <CommandEmpty>No employee found.</CommandEmpty>
+            <CommandEmpty>No employees found.</CommandEmpty>
             <CommandGroup>
               {employees?.map((employee) => (
                 <CommandItem
@@ -56,7 +57,7 @@ export const DashboardTodoItemEmployeeDropdown: React.FC<DashboardTodoItemEmploy
                   />
                   {employee.employeeName}
                 </CommandItem>
-              )) ?? null} 
+              )) ?? <></>} 
             </CommandGroup> 
           </CommandList>
         </Command>

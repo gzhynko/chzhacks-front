@@ -19,7 +19,8 @@ interface DashboardHomeFieldItemProps {
 
 export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ field, onAlertClick }) => {
   const [addingTodoItem, setAddingTodoItem] = useState(false);
-  const [newItem, setNewItem] = useState<TodoListItem | null>({text: "", assignedEmployees: []});
+  const [newItem, setNewItem] = useState<TodoListItem | null>({text: "", assignedEmployee: null});
+  const [open, setOpen] = useState(false);
 
   const { token, fields } = useAuthenticatedData();
 
@@ -51,7 +52,7 @@ export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ 
   }
 
   return (
-    <Popover key={field.id}>
+    <Popover key={field.id} open={open} onOpenChange={(open) => setOpen(open)}>
       <PopoverTrigger asChild>
         <Alert className="cursor-pointer" onClick={() => onAlertClick(field.properties.fieldId)}>
           <div className="flex flex-row items-center justify-between gap-6">
@@ -80,8 +81,8 @@ export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ 
           </div>
         </Alert>
       </PopoverTrigger>
-      <PopoverContent className="p-3 w-[400px]">
-        <div className="flex flex-col gap-3">
+      <PopoverContent className="flex flex-col p-3 w-[400px] max-h-[500px] overflow-hidden">
+        <div className="flex flex-col gap-3 h-full overflow-hidden">
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row gap-1 items-center">
               <p className="text-lg font-medium leading-none">{field.properties.fieldName}</p>
@@ -90,13 +91,13 @@ export const DashboardHomeFieldItem: React.FC<DashboardHomeFieldItemProps> = ({ 
             </div>
             <Button variant="ghost" className="p-1 h-fit" onClick={() => {}}><X/></Button>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 overflow-auto h-full">
             {!addingTodoItem ? (
-              <Button variant="ghost" className="text-gray-500 h-20 w-full" onClick={() => setAddingTodoItem(true)}><Plus/> Add item</Button>
+              <Button variant="ghost" className="text-gray-500 h-20 w-full shrink-0" onClick={() => setAddingTodoItem(true)}><Plus/> Add item</Button>
             ) : (
-              <DashboardTodoItem todoItem={newItem!} updateItem={(newItem) => {addTodoItem(field.properties.fieldId, newItem); setAddingTodoItem(false)}} />
+              <DashboardTodoItem todoItem={newItem!} isEditing={true} updateItem={(newItem) => {addTodoItem(field.properties.fieldId, newItem); setAddingTodoItem(false)}} />
             )}
-            {field.properties.todoList?.map((item, index) => (<DashboardTodoItem todoItem={item} updateItem={(newItem) => updateTodoItem(field.properties.fieldId, index, newItem)}  />))}
+            {field.properties.todoList?.map((item, index) => (<DashboardTodoItem todoItem={item} isEditing={false} updateItem={(newItem) => updateTodoItem(field.properties.fieldId, index, newItem)}  />))}
           </div>
         </div>
       </PopoverContent>
