@@ -31,6 +31,6 @@ export const apiService = {
     return axios.get(`${API_BASE_URL}/get-employees`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
   async addEmployee(token: string, employee: any) {
-    return axios.post(`${API_BASE_URL}/add-employee`, employee, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+    return axios.post(`${API_BASE_URL}/add-employee`, {"employee": employee}, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
 }
