@@ -4,7 +4,7 @@ import { MapView } from "../MapView";
 import * as turf from '@turf/turf';
 import { Button } from "@/components/shadcn-ui/button";
 import MapboxDraw, { DrawSelectionChangeEvent } from '@mapbox/mapbox-gl-draw';
-import { Plus, X } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import { useAuthenticatedData } from "../AuthenticatedDataContext";
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 import { FarmFieldProperties } from "@/model/FarmField";
@@ -12,10 +12,7 @@ import { DashboardManagePopoverMode } from "../types/DashboardManagePopoverMode"
 import { apiService } from "@/service/api";
 import { Feature, Polygon } from "geojson";
 import { GeoJSONSource } from "mapbox-gl";
-import { MapRef } from "react-map-gl";
-
-const POPOVER_OFFSET_X = 300;
-const POPOVER_OFFSET_Y = 100;
+import { MapRef, MapMouseEvent } from "react-map-gl";
 
 const drawControl = new MapboxDraw({
   displayControlsDefault: false,
@@ -36,23 +33,17 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
   const mapRef: MutableRefObject<MapRef|null> = useRef(null);
   const [fieldPropertiesPopupOpen, setFieldPropertiesPopupOpen] = useState(false);
   const [fieldPropertiesPopupPosition, setFieldPropertiesPopupPosition] = useState<[number, number] | null>(null);
-
-  const popoverContentRef: MutableRefObject<HTMLDivElement|null> = useRef<HTMLDivElement>(null);
+  const [didFitBounds, setDidFitBounds] = useState(false);
 
   const [fieldPropertiesPopupActiveField, setFieldPropertiesPopupActiveField] = useState<FarmFieldProperties|null>(null);
   const [fieldPropertiesPopupActiveFeatureId, setFieldPropertiesPopupActiveFeatureId] = useState<string | undefined>(undefined);
   const [fieldPropertiesPopupMode, setFieldPropertiesPopupMode] = useState<DashboardManagePopoverMode>(DashboardManagePopoverMode.Edit);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     if (mapRef.current === null) 
       return;
-
-    mapRef.current.on('mouseenter', 'states-layer', () => {
-      mapRef.current!.getCanvas().style.cursor = 'pointer';
-    });
-    mapRef.current.on('mouseleave', 'states-layer', () => {
-      mapRef.current!.getCanvas().style.cursor = '';
-    });
 
     mapRef.current.on('draw.selectionchange', function (e: DrawSelectionChangeEvent) {
       if (e.features.length === 0) {
@@ -63,7 +54,6 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
       }
 
       const center = turf.center(e.features[0].geometry);
-      const projected = mapRef.current?.project(center.geometry.coordinates as [number, number]);
 
       setFieldPropertiesPopupPosition(center.geometry.coordinates as [number, number]);
       setFieldPropertiesPopupOpen(true);
@@ -71,7 +61,33 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
       setFieldPropertiesPopupActiveFeatureId(e.features[0].id as string|undefined);
       setFieldPropertiesPopupMode(DashboardManagePopoverMode.Create);
     });
-  }, [fields, isAddingField]);
+
+    mapRef.current.on('draw.delete', function () {
+      setFieldPropertiesPopupOpen(false);
+      setFieldPropertiesPopupActiveField(null);
+      setFieldPropertiesPopupActiveFeatureId(undefined);
+    });
+  }, [mapRef.current]);
+
+  const onMapClick = (e: MapMouseEvent) => {
+    if (isAddingFieldStateRef.current)
+      return;
+
+    const feature = e.features?.find((feature) => feature.layer!.id === 'fields-layer');
+    if (!feature) {
+      setFieldPropertiesPopupOpen(false);
+      setFieldPropertiesPopupActiveField(null);
+      setFieldPropertiesPopupActiveFeatureId(undefined);
+      return;
+    }
+
+    const center = turf.center(feature.geometry);
+    setFieldPropertiesPopupPosition(center.geometry.coordinates as [number, number]);
+    setFieldPropertiesPopupOpen(true);
+    setFieldPropertiesPopupActiveField(feature.properties as FarmFieldProperties || {});
+    setFieldPropertiesPopupActiveFeatureId(feature.id as string);
+    setFieldPropertiesPopupMode(DashboardManagePopoverMode.Edit);
+  };
 
   useEffect(() => {
     if (active)
@@ -108,9 +124,15 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
 
   // update fields data on map when its changed
   useEffect(() => {
-    console.log("Updating fields data on map");
     if (mapRef.current === null || !fields)
       return;
+
+    // fit map to fields
+    if (fields.features.length > 0  && !didFitBounds) {
+      const bbox = turf.bbox(fields);
+      mapRef.current.fitBounds([[bbox[0], bbox[1]], [bbox[2], bbox[3]]], {padding: 20, animate: false});
+      setDidFitBounds(true);
+    }
 
     const source = mapRef.current?.getSource('user-fields') as GeoJSONSource;
     if (source === undefined)
@@ -141,9 +163,11 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
       };
     });
 
+    setIsSaving(true);
     for (const feature of features) {
       await apiService.addField(token, feature as Feature<Polygon>);
     }
+    setIsSaving(false);
 
     setFieldPropertiesPopupActiveField(null);
     setFieldPropertiesPopupActiveFeatureId(undefined);
@@ -158,8 +182,10 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
 
     const currFeature = mapRef.current!.queryRenderedFeatures({layers: ['fields-layer']}).find((feature) => feature.id === fieldPropertiesPopupActiveFeatureId);
 
+    setIsSaving(true);
     // update api
     await apiService.updateField(token, {type: currFeature!.type, geometry: currFeature!.geometry as Polygon, properties: fieldPropertiesPopupActiveField });
+    setIsSaving(false);
 
     setFieldPropertiesPopupActiveField(null);
     setFieldPropertiesPopupActiveFeatureId(undefined);
@@ -172,7 +198,9 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
     if (fieldPropertiesPopupActiveFeatureId === undefined)
       return;
 
+    setIsRemoving(true);
     await apiService.deleteField(token, fieldPropertiesPopupActiveField!.fieldId);
+    setIsRemoving(false);
 
     setFieldPropertiesPopupActiveField(null);
     setFieldPropertiesPopupActiveFeatureId(undefined);
@@ -186,13 +214,16 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
       <div className="w-full h-full">
         <MapView 
           mapRef={mapRef} 
-          farmFieldsSource={null} 
+          farmFieldsSource={fields} 
+          onClick={onMapClick}
           popupOpen={fieldPropertiesPopupOpen} 
           fieldPropertiesPopupActiveMode={fieldPropertiesPopupMode}
           fieldPropertiesPopupActiveField={fieldPropertiesPopupActiveField} 
           fieldPropertiesPopupPosition={fieldPropertiesPopupPosition} 
           fieldPropertiesPopupOnSave={onEditSaveChangesButtonClick}
+          fieldPropertiesPopupIsSaving={isSaving}
           fieldPropertiesPopupOnRemove={onEditRemoveButtonClick}
+          fieldPropertiesPopupIsRemoving={isRemoving}
           fieldPropertiesPopupSetProperties={setActivePopoverFieldProperties}
           setPopupOpen={setFieldPropertiesPopupOpen} 
         />
@@ -210,7 +241,10 @@ export const DashboardManageScreen: React.FC<DashboardScreenProps> = ({active}) 
         }
       </Button>
       {isAddingField &&
-        <Button variant="default" className="absolute w-1/2 max-w-lg bottom-6 left-1/2 transform -translate-x-1/2" onClick={onAddSaveChangesButtonClick}>Save Changes</Button>
+        <Button variant="default" className="absolute w-1/2 max-w-lg bottom-6 left-1/2 transform -translate-x-1/2" onClick={onAddSaveChangesButtonClick} disabled={isSaving}>
+          <Loader2 className={`animate-spin ${isSaving ? "" : "hidden"}`} />
+          Save Changes
+        </Button>
       }
 
       {/*

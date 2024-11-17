@@ -26,7 +26,7 @@ export const DashboardHomeFields: React.FC<DashboardHomeFieldsProps> = ({onAlert
           </NavLink>
         )}
         {fields && fields.features.map((field) => (
-          <Alert className="cursor-pointer" onClick={() => onAlertClick(field.properties.fieldId)}>
+          <Alert key={field.id} className="cursor-pointer" onClick={() => onAlertClick(field.properties.fieldId)}>
             <div className="flex flex-row items-center justify-between gap-6">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row gap-3 items-center">

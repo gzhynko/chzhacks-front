@@ -2,7 +2,7 @@ import { DashboardManagePopoverMode } from "@/components/types/DashboardManagePo
 import { Button } from "@/components/shadcn-ui/button";
 import { Input } from "@/components/shadcn-ui/input";
 import { FarmFieldProperties } from "@/model/FarmField";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { DatePicker } from "./DatePicker";
 import { Label } from "@/components/shadcn-ui/label";
 
@@ -10,17 +10,19 @@ interface DashboardManagePopoverProps {
   mode: DashboardManagePopoverMode;
   fieldProperties: FarmFieldProperties | null;
   setFieldProperties: (properties: FarmFieldProperties) => void;
-  setPopoverOpen: (open: boolean) => void;
+  setPopupOpen: (open: boolean) => void;
   onSave?: () => void;
+  isSaving?: boolean;
   onRemove?: () => void;
+  isRemoving?: boolean;
 }
 
-export const DashboardManagePopup: React.FC<DashboardManagePopoverProps> = ({ mode, fieldProperties, setFieldProperties, setPopoverOpen, onSave, onRemove }) => {
+export const DashboardManagePopup: React.FC<DashboardManagePopoverProps> = ({ mode, fieldProperties, setFieldProperties, setPopupOpen, onSave, isSaving, onRemove, isRemoving }) => {
   return fieldProperties ? (
     <div className="flex flex-col gap-3">
       <div className="flex flex-row justify-between items-center">
         <p className="text-lg font-medium leading-none">{mode === DashboardManagePopoverMode.Edit ? fieldProperties.fieldName : "New Field"}</p>
-        <Button variant="ghost" className="p-1 h-fit" onClick={() => setPopoverOpen(false)}><X/></Button>
+        <Button variant="ghost" className="p-1 h-fit" onClick={() => setPopupOpen(false)}><X/></Button>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -60,8 +62,14 @@ export const DashboardManagePopup: React.FC<DashboardManagePopoverProps> = ({ mo
       
       {mode === DashboardManagePopoverMode.Edit && (
         <div className="flex flex-row gap-2">
-          <Button variant="destructive" className="w-full" onClick={onRemove}>Remove</Button>
-          <Button variant="outline" className="w-full" onClick={onSave}>Save Changes</Button>
+          <Button variant="destructive" className="w-full" onClick={onRemove} disabled={isRemoving}>
+            <Loader2 className={`animate-spin ${isRemoving ? "" : "hidden"}`} />
+            Remove
+          </Button>
+          <Button variant="outline" className="w-full" onClick={onSave} disabled={isSaving}>
+            <Loader2 className={`animate-spin ${isSaving ? "" : "hidden"}`} />
+            Save Changes
+          </Button>
         </div>
       )}
     </div>
