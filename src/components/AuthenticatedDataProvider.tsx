@@ -53,6 +53,9 @@ export const AuthenticatedDataProvider: React.FC<AuthenticatedDataProviderProps>
       });
     }
     setAlerts(alerts);
+
+    const employees = await apiService.getEmployees(accessToken);
+    setEmployees(employees);
   }, [getAccessTokenSilently]);
 
   useEffect(() => {

@@ -27,4 +27,10 @@ export const apiService = {
   async getAlerts(token: string) {
     return axios.get<FieldAlertDTO[]>(`${API_BASE_URL}/get-alerts`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
+  async getEmployees(token: string) {
+    return axios.get(`${API_BASE_URL}/get-employees`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+  },
+  async addEmployee(token: string, employee: any) {
+    return axios.post(`${API_BASE_URL}/add-employee`, employee, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+  },
 }

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/dashboard/components/Sidebar";
 import { DashboardManageScreen } from "@/components/dashboard/DashboardManageScreen";
 import { useCallback } from "react";
 import { AuthenticatedDataProvider } from "@/components/AuthenticatedDataProvider";
+import { DashboardEmployeesScreen } from "@/components/dashboard/DashboardEmployeesScreen";
 
 export interface DashboardScreenProps {
   active: boolean;
@@ -19,6 +20,8 @@ export const Dashboard: React.FC = () => {
       return "Home";
     } else if (dashboardTab === "manage") {
       return "Manage Farmland";
+    } else if (dashboardTab === "employees") {
+      return "Manage Employees";
     }
     return "";
   }, [dashboardTab]);
@@ -30,6 +33,7 @@ export const Dashboard: React.FC = () => {
         <ScreenBase activeScreenName={activeScreenName()}>
           <DashboardHomeScreen active={dashboardTab === "home"}  />
           <DashboardManageScreen active={dashboardTab === "manage"}  />
+          <DashboardEmployeesScreen active={dashboardTab === "employees"}  />
         </ScreenBase>
       </div>
     </AuthenticatedDataProvider>
