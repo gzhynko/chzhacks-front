@@ -1,4 +1,5 @@
 import { FarmFieldDTO, FarmFieldGeoJSONCollection, FarmFieldProperties } from "@/model/FarmField";
+import { FieldAlertDTO } from "@/model/FieldAlert";
 import axios from "axios";
 import { Feature, Polygon } from "geojson";
 
@@ -24,6 +25,6 @@ export const apiService = {
     return axios.delete(`${API_BASE_URL}/delete-farm/${fieldId}`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
   async getAlerts(token: string) {
-    return axios.get(`${API_BASE_URL}/get-alerts`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
+    return axios.get<FieldAlertDTO[]>(`${API_BASE_URL}/get-alerts`, {headers: {Authorization:`Bearer ${token}`}}).then((res) => res.data);
   },
 }

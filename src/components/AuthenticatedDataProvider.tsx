@@ -4,7 +4,7 @@ import { useAuth0, User } from "@auth0/auth0-react";
 import { useCallback, useEffect, useState } from "react";
 import { AuthenticatedDataContext } from "./AuthenticatedDataContext";
 import { FarmEmployee } from "@/model/FarmEmployee";
-import { FieldAlert } from "@/model/FieldAlert";
+import { FieldAlert, FieldAlertDTO } from "@/model/FieldAlert";
 
 export interface AuthenticatedContextState {
   token: string;
@@ -35,7 +35,23 @@ export const AuthenticatedDataProvider: React.FC<AuthenticatedDataProviderProps>
     const fields = await apiService.getFields(accessToken);
     setFields(apiService.dtoFieldsToFeatureCollection(fields));
 
-    const alerts = await apiService.getAlerts(accessToken);
+    const alertsByField = await apiService.getAlerts(accessToken);
+    let alerts: FieldAlert[] = [];
+    for (let i = 0; i < alertsByField.length; i++) {
+      const fieldAlerts = alertsByField[i];
+      const next7Days = fieldAlerts.labels.map((label, idx) => {
+        return [idx + 1, label];
+      }).filter((res) => res[1] !== "Normal Weather");
+
+      next7Days.forEach((res) => {
+        alerts.push({
+          fieldId: fieldAlerts.fieldId,
+          fieldName: fields.find((field) => field.properties!.fieldId === fieldAlerts.fieldId)?.properties?.fieldName as string,
+          inDays: res[0] as number,
+          alertType: res[1] as string,
+        });
+      });
+    }
     setAlerts(alerts);
   }, [getAccessTokenSilently]);
 
